@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>غرفة المحادثة الخاصة</title>
+  <style>
+    body { background-color: #000; color: #00ff00; font-family: monospace; text-align: center; margin: 0; padding: 20px; }
+    #login-box, #chat-box { max-width: 400px; margin: 30px auto; border: 2px solid #00ff00; padding: 20px; background: #050505; box-shadow: 0 0 15px #00ff00; border-radius: 8px; }
+    #chat-box { display: none; text-align: right; }
+    input, button { background: #000; color: #00ff00; border: 1px solid #00ff00; padding: 10px; margin: 10px 0; width: 90%; font-family: monospace; border-radius: 4px; box-sizing: border-box; }
+    button { cursor: pointer; width: 45%; font-weight: bold; }
+    button:hover { background: #00ff00; color: #000; }
+    #messages { height: 250px; border: 1px dashed #00ff00; overflow-y: scroll; padding: 10px; margin-bottom: 10px; background: #001100; }
+    .msg { margin-bottom: 8px; border-bottom: 1px dotted #005500; padding-bottom: 4px; word-break: break-all; }
+  </style>
+</head>
+<body>
+
+  <!-- شاشة كلمة المرور -->
+  <div id="login-box">
+    <h2>[ نظام الدخول الأمني ]</h2>
+    <p>أدخل اسمك المستعار وكلمة المرور للمتابعة</p>
+    <input type="text" id="username" placeholder="الاسم المستعار..."><br>
+    <input type="password" id="password" placeholder="كلمة المرور"><br>
+    <button onclick="login()">دخول</button>
+    <p id="error" style="color: red;"></p>
+  </div>
+
+  <!-- شاشة المحادثة -->
+  <div id="chat-box">
+    <h2>[ غرفة العمليات النشطة ]</h2>
+    <div id="messages"></div>
+    <div style="display:flex; gap: 5px;">
+      <input type="text" id="messageInput" placeholder="اكتب رسالتك..." style="width: 75%;">
+      <button onclick="sendMessage()" style="width: 25%;">إرسال</button>
+    </div>
+  </div>
+
+  <script>
+    let myName = "";
+    function login() {
+      let user = document.getElementById("username").value;
+      let pass = document.getElementById("password").value;
+      if(user.trim() === "") {
+        document.getElementById("error").innerText = "الرجاء إدخال اسمك!";
+        return;
+      }
+      if(pass === "261120") {
+        myName = user;
+        document.getElementById("login-box").style.display = "none";
+        document.getElementById("chat-box").style.display = "block";
+        loadMessages();
+      } else {
+        document.getElementById("error").innerText = "كلمة المرور غير صحيحة!";
+      }
+    }
+
+    function sendMessage() {
+      let text = document.getElementById("messageInput").value;
+      if(text.trim() === "") return;
+      let msgData = { user: myName, text: text, time: new Date().toLocaleTimeString() };
+      let allMsgs = JSON.parse(localStorage.getItem("hacker_chat") || "[]");
+      allMsgs.push(msgData);
+      localStorage.setItem("hacker_chat", JSON.stringify(allMsgs));
+      document.getElementById("messageInput").value = "";
+      loadMessages();
+    }
+
+    function loadMessages() {
+      let allMsgs = JSON.parse(localStorage.getItem("hacker_chat") || "[]");
+      let box = document.getElementById("messages");
+      box.innerHTML = "";
+      allMsgs.forEach(m => {
+        box.innerHTML += `<div class="msg"><b>${m.user}</b> [${m.time}]:<br>${m.text}</div>`;
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    setInterval(loadMessages, 1000);
+  </script>
+</body>
+</html>
